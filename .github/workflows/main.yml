@@ -23,14 +23,14 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Generate Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleLibreDebug
       
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
         # ID used to access action output
         id: sign_app
         with:
-          releaseDirectory: app/proprietary/debug
+          releaseDirectory: app/libre/debug
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -42,7 +42,7 @@ jobs:
         
       - name: Rename APK
         id: rename
-        run: mv ${{steps.sign_app.outputs.signedReleaseFile}} app/proprietary/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
+        run: mv ${{steps.sign_app.outputs.signedReleaseFile}} app/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
         
       - name: Publish Release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -52,4 +52,4 @@ jobs:
           prerelease: true
           title: "Testing Build"
           files: |
-            app/proprietary/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
+            app/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
