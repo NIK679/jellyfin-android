@@ -30,7 +30,7 @@ jobs:
         # ID used to access action output
         id: sign_app
         with:
-          releaseDirectory: app/libre/debug
+          releaseDirectory: app/build/outputs/apk/libre/debug
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -42,7 +42,7 @@ jobs:
         
       - name: Rename APK
         id: rename
-        run: mv ${{steps.sign_app.outputs.signedReleaseFile}} app/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
+        run: mv ${{steps.sign_app.outputs.signedReleaseFile}} app/build/outputs/apk/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
         
       - name: Publish Release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -52,4 +52,4 @@ jobs:
           prerelease: true
           title: "Testing Build"
           files: |
-            app/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
+            app/build/outputs/apk/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
