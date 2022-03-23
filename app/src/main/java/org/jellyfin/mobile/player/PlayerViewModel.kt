@@ -30,13 +30,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jellyfin.mobile.AppPreferences
 import org.jellyfin.mobile.BuildConfig
-import org.jellyfin.mobile.PLAYER_EVENT_CHANNEL
-import org.jellyfin.mobile.model.DisplayPreferences
 import org.jellyfin.mobile.bridge.ExternalPlayer
 import org.jellyfin.mobile.bridge.NativePlayer
 import org.jellyfin.mobile.player.mpv.MPVPlayer
+import org.jellyfin.mobile.app.PLAYER_EVENT_CHANNEL
+import org.jellyfin.mobile.player.ui.DisplayPreferences
+import org.jellyfin.mobile.player.interaction.PlayerEvent
+import org.jellyfin.mobile.player.interaction.PlayerLifecycleObserver
+import org.jellyfin.mobile.player.interaction.PlayerMediaSessionCallback
+import org.jellyfin.mobile.player.interaction.PlayerNotificationHelper
 import org.jellyfin.mobile.player.source.JellyfinMediaSource
-import org.jellyfin.mobile.player.source.MediaQueueManager
+import org.jellyfin.mobile.player.queue.QueueManager
 import org.jellyfin.mobile.settings.VideoPlayerType
 import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.mobile.utils.Constants.SUPPORTED_VIDEO_PLAYER_PLAYBACK_ACTIONS
@@ -45,11 +49,11 @@ import org.jellyfin.mobile.utils.applyDefaultLocalAudioAttributes
 import org.jellyfin.mobile.utils.getVolumeLevelPercent
 import org.jellyfin.mobile.utils.getVolumeRange
 import org.jellyfin.mobile.utils.logTracks
-import org.jellyfin.mobile.utils.scaleInRange
+import org.jellyfin.mobile.utils.extensions.scaleInRange
 import org.jellyfin.mobile.utils.seekToOffset
 import org.jellyfin.mobile.utils.setPlaybackState
 import org.jellyfin.mobile.utils.toMediaMetadata
-import org.jellyfin.mobile.utils.width
+import org.jellyfin.mobile.utils.extensions.width
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.exception.ApiClientException
 import org.jellyfin.sdk.api.client.extensions.displayPreferencesApi
@@ -82,7 +86,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
     val notificationHelper: PlayerNotificationHelper by lazy { PlayerNotificationHelper(this) }
 
     // Media source handling
-    val mediaQueueManager = MediaQueueManager(
+    val mediaQueueManager = QueueManager(
         viewModel = this, playerName = when (appPreferences.videoPlayerType) {
             VideoPlayerType.EXO_PLAYER -> NativePlayer.PLAYER_NAME
             VideoPlayerType.MPV_PLAYER -> MPVPlayer.PLAYER_NAME
@@ -139,15 +143,12 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
                 val customPrefs = displayPreferencesDto.customPrefs
 
                 displayPreferences = DisplayPreferences(
-                    skipBackLength = customPrefs?.get(Constants.DISPLAY_PREFERENCES_SKIP_BACK_LENGTH)?.toLongOrNull()
+                    skipBackLength = customPrefs[Constants.DISPLAY_PREFERENCES_SKIP_BACK_LENGTH]?.toLongOrNull()
                         ?: Constants.DEFAULT_SEEK_TIME_MS,
-                    skipForwardLength = customPrefs?.get(Constants.DISPLAY_PREFERENCES_SKIP_FORWARD_LENGTH)?.toLongOrNull()
+                    skipForwardLength = customPrefs[Constants.DISPLAY_PREFERENCES_SKIP_FORWARD_LENGTH]?.toLongOrNull()
                         ?: Constants.DEFAULT_SEEK_TIME_MS
                 )
             } catch (e: ApiClientException) {
-                Timber.e(e, "Failed to load display preferences")
-            } catch (e: IllegalArgumentException /* kotlinx.serialization.SerializationException */) {
-                // TODO: Remove catch branch when SDK is updated to >=10.8 based API
                 Timber.e(e, "Failed to load display preferences")
             }
         }
@@ -219,7 +220,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
         _player.value = null
     }
 
-    fun play(queueItem: MediaQueueManager.QueueItem.Loaded) {
+    fun play(queueItem: QueueManager.QueueItem.Loaded) {
         val player = playerOrNull ?: return
 
         when (player) {
@@ -375,18 +376,16 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
         }
     }
 
-    fun skipToPrevious(force: Boolean = false) {
+    fun skipToPrevious() {
         val player = playerOrNull ?: return
         when {
             // Skip to previous element
-            force || player.currentPosition <= Constants.MAX_SKIP_TO_PREV_MS -> {
-                viewModelScope.launch {
-                    pause()
-                    if (!mediaQueueManager.previous()) {
-                        // Skip to previous failed, go to start of video anyway
-                        playerOrNull?.seekTo(0)
-                        play()
-                    }
+            player.currentPosition <= Constants.MAX_SKIP_TO_PREV_MS -> viewModelScope.launch {
+                pause()
+                if (!mediaQueueManager.previous()) {
+                    // Skip to previous failed, go to start of video anyway
+                    playerOrNull?.seekTo(0)
+                    play()
                 }
             }
             // Rewind to start of track if not at the start already
@@ -401,14 +400,14 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
     }
 
     /**
-     * @see MediaQueueManager.selectAudioTrack
+     * @see QueueManager.selectAudioTrack
      */
     fun selectAudioTrack(streamIndex: Int): Boolean = mediaQueueManager.selectAudioTrack(streamIndex).also { success ->
         if (success) playerOrNull?.logTracks(analyticsCollector)
     }
 
     /**
-     * @see MediaQueueManager.selectSubtitle
+     * @see QueueManager.selectSubtitle
      */
     fun selectSubtitle(streamIndex: Int): Boolean = mediaQueueManager.selectSubtitle(streamIndex).also { success ->
         if (success) playerOrNull?.logTracks(analyticsCollector)
