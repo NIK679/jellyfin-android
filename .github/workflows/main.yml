@@ -6,9 +6,9 @@ name: CI - Build signed apk for testing
 on:
   # Triggers the workflow on push or pull request events but only for the specified branch
   push:
-    branches: [ mpv ]
+    branches: [ mpv-main ]
   pull_request:
-    branches: [ mpv ]
+    branches: [ mpv-main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -48,8 +48,8 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: testing-${{ steps.date.outputs.date }}
+          automatic_release_tag: mpv-${{ steps.date.outputs.date }}
           prerelease: true
-          title: "Testing Build"
+          title: "MPV Build"
           files: |
             app/build/outputs/apk/libre/debug/jellyfin-android-mpv-${{ steps.date.outputs.date }}.apk
