@@ -3,9 +3,7 @@ package org.jellyfin.mobile.player.deviceprofile
 import android.media.MediaCodecList
 import org.jellyfin.mobile.bridge.ExternalPlayer
 import org.jellyfin.mobile.bridge.NativePlayer
-import org.jellyfin.mobile.player.DeviceCodec
 import org.jellyfin.mobile.player.mpv.MPVPlayer
-import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.sdk.model.api.CodecProfile
 import org.jellyfin.sdk.model.api.ContainerProfile
 import org.jellyfin.sdk.model.api.DeviceProfile

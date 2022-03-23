@@ -28,7 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jellyfin.mobile.AppPreferences
+import org.jellyfin.mobile.app.AppPreferences
 import org.jellyfin.mobile.BuildConfig
 import org.jellyfin.mobile.bridge.ExternalPlayer
 import org.jellyfin.mobile.bridge.NativePlayer
