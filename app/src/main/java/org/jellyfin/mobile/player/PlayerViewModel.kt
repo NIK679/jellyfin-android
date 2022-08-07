@@ -34,26 +34,26 @@ import org.jellyfin.mobile.bridge.ExternalPlayer
 import org.jellyfin.mobile.bridge.NativePlayer
 import org.jellyfin.mobile.player.mpv.MPVPlayer
 import org.jellyfin.mobile.app.PLAYER_EVENT_CHANNEL
-import org.jellyfin.mobile.player.ui.DisplayPreferences
 import org.jellyfin.mobile.player.interaction.PlayerEvent
 import org.jellyfin.mobile.player.interaction.PlayerLifecycleObserver
 import org.jellyfin.mobile.player.interaction.PlayerMediaSessionCallback
 import org.jellyfin.mobile.player.interaction.PlayerNotificationHelper
-import org.jellyfin.mobile.player.source.JellyfinMediaSource
 import org.jellyfin.mobile.player.queue.QueueManager
 import org.jellyfin.mobile.settings.VideoPlayerType
+import org.jellyfin.mobile.player.source.JellyfinMediaSource
+import org.jellyfin.mobile.player.ui.DisplayPreferences
 import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.mobile.utils.Constants.SUPPORTED_VIDEO_PLAYER_PLAYBACK_ACTIONS
 import org.jellyfin.mobile.utils.applyDefaultAudioAttributes
 import org.jellyfin.mobile.utils.applyDefaultLocalAudioAttributes
+import org.jellyfin.mobile.utils.extensions.scaleInRange
+import org.jellyfin.mobile.utils.extensions.width
 import org.jellyfin.mobile.utils.getVolumeLevelPercent
 import org.jellyfin.mobile.utils.getVolumeRange
 import org.jellyfin.mobile.utils.logTracks
-import org.jellyfin.mobile.utils.extensions.scaleInRange
 import org.jellyfin.mobile.utils.seekToOffset
 import org.jellyfin.mobile.utils.setPlaybackState
 import org.jellyfin.mobile.utils.toMediaMetadata
-import org.jellyfin.mobile.utils.extensions.width
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.exception.ApiClientException
 import org.jellyfin.sdk.api.client.extensions.displayPreferencesApi
@@ -146,7 +146,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
                     skipBackLength = customPrefs[Constants.DISPLAY_PREFERENCES_SKIP_BACK_LENGTH]?.toLongOrNull()
                         ?: Constants.DEFAULT_SEEK_TIME_MS,
                     skipForwardLength = customPrefs[Constants.DISPLAY_PREFERENCES_SKIP_FORWARD_LENGTH]?.toLongOrNull()
-                        ?: Constants.DEFAULT_SEEK_TIME_MS
+                        ?: Constants.DEFAULT_SEEK_TIME_MS,
                 )
             } catch (e: ApiClientException) {
                 Timber.e(e, "Failed to load display preferences")
@@ -275,7 +275,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
                     positionTicks = mediaSource.startTimeMs * Constants.TICKS_PER_MILLISECOND,
                     volumeLevel = audioManager.getVolumeLevelPercent(),
                     repeatMode = RepeatMode.REPEAT_NONE,
-                )
+                ),
             )
         } catch (e: ApiClientException) {
             Timber.e(e, "Failed to report playback start")
@@ -303,7 +303,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
                         positionTicks = playbackPositionMillis * Constants.TICKS_PER_MILLISECOND,
                         volumeLevel = (currentVolume - volumeRange.first) * Constants.PERCENT_MAX / volumeRange.width,
                         repeatMode = RepeatMode.REPEAT_NONE,
-                    )
+                    ),
                 )
             } catch (e: ApiClientException) {
                 Timber.e(e, "Failed to report playback progress")
@@ -330,7 +330,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
                         positionTicks = lastPositionTicks,
                         playSessionId = mediaSource.playSessionId,
                         failed = false,
-                    )
+                    ),
                 )
 
                 // Mark video as watched if playback finished
@@ -342,7 +342,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
                 if (mediaSource.playMethod == PlayMethod.TRANSCODE) {
                     hlsSegmentApi.stopEncodingProcess(
                         deviceId = apiClient.deviceInfo.id,
-                        playSessionId = mediaSource.playSessionId
+                        playSessionId = mediaSource.playSessionId,
                     )
                 }
             } catch (e: ApiClientException) {

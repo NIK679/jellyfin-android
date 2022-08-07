@@ -58,7 +58,7 @@ class QueueManager(
      */
     suspend fun startPlayback(playOptions: PlayOptions): PlayerException? {
         if (playOptions != currentPlayOptions) {
-            val itemId = playOptions.ids[playOptions.startIndex]
+            val itemId = playOptions.run { mediaSourceId ?: ids[playOptions.startIndex] }
             mediaSourceResolver.resolveMediaSource(
                 itemId = itemId,
                 deviceProfile = deviceProfile,
@@ -209,7 +209,7 @@ class QueueManager(
      */
     @CheckResult
     private fun createSubtitleMediaSources(
-        source: JellyfinMediaSource
+        source: JellyfinMediaSource,
     ): Array<MediaSource> {
         val factory = get<SingleSampleMediaSource.Factory>()
         return source.getExternalSubtitleStreams().map { stream ->

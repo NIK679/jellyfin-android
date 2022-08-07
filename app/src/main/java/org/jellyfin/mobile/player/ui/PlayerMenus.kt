@@ -137,7 +137,7 @@ class PlayerMenus(
         "\n",
         "${fragment.getString(prefix)}:\n",
         limit = maxStreams,
-        truncated = fragment.getString(R.string.playback_info_and_x_more, mediaStreams.size - maxStreams)
+        truncated = fragment.getString(R.string.playback_info_and_x_more, mediaStreams.size - maxStreams),
     ) { stream ->
         val title = stream.displayTitle?.takeUnless(String::isEmpty) ?: fragment.getString(R.string.playback_info_stream_unknown_title)
         val suffix = streamSuffix(stream)
@@ -195,7 +195,13 @@ class PlayerMenus(
         setOnDismissListener(this@PlayerMenus)
     }
 
-    private fun buildMenuItems(menu: Menu, groupId: Int, mediaStreams: List<MediaStream>, selectedStream: MediaStream?, showNone: Boolean = false) {
+    private fun buildMenuItems(
+        menu: Menu,
+        groupId: Int,
+        mediaStreams: List<MediaStream>,
+        selectedStream: MediaStream?,
+        showNone: Boolean = false,
+    ) {
         menu.clear()
         val itemNone = if (showNone) menu.add(groupId, -1, Menu.NONE, fragment.getString(R.string.menu_item_none)) else null
         val menuItems = mediaStreams.map { mediaStream ->

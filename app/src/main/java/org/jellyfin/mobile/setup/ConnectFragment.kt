@@ -22,12 +22,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import org.jellyfin.mobile.MainViewModel
 import org.jellyfin.mobile.R
 import org.jellyfin.mobile.app.ApiClientController
 import org.jellyfin.mobile.databinding.FragmentConnectBinding
 import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.mobile.utils.applyWindowInsetsAsMargins
-import org.jellyfin.mobile.MainViewModel
 import org.jellyfin.sdk.Jellyfin
 import org.jellyfin.sdk.discovery.LocalServerDiscovery
 import org.jellyfin.sdk.discovery.RecommendedServerInfo
@@ -57,7 +57,7 @@ class ConnectFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _connectServerBinding = FragmentConnectBinding.inflate(inflater, container, false)
         return serverSetupLayout.apply { applyWindowInsetsAsMargins() }
@@ -183,7 +183,8 @@ class ConnectFragment : Fragment() {
                     false
                 }
                 RecommendedServerInfoScore.OK,
-                RecommendedServerInfoScore.BAD -> {
+                RecommendedServerInfoScore.BAD,
+                -> {
                     badServers += recommendedServer
                     false
                 }

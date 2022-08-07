@@ -16,6 +16,7 @@ detekt {
     buildUponDefaultConfig = true
     allRules = false
     config = files("${rootProject.projectDir}/detekt.yml")
+    autoCorrect = true
     ignoreFailures = true
 }
 
@@ -71,12 +72,11 @@ android {
         }
     }
 
-    /*splits {
-        abi {
-            isEnable = true
-            isUniversalApk = true
+    bundle {
+        language {
+            enableSplit = false
         }
-    }*/
+    }
 
     @Suppress("UnstableApiUsage")
     buildFeatures {
@@ -93,9 +93,9 @@ android {
         jniLibs.keepDebugSymbols += "**/*.so"
     }
     lint {
-        isAbortOnError = false
+        lintConfig = file("$rootDir/android-lint.xml")
+        abortOnError = false
         sarifReport = true
-        disable("MissingTranslation", "ExtraTranslation")
     }
 }
 
@@ -166,11 +166,14 @@ dependencies {
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)
     androidTestImplementation(libs.bundles.androidx.test)
-	
+
 	// TODO: Decide how to build / publish this..
     implementation(files("libmpv\\app-release.aar"))
     //implementation(files("libmpv\\app-sources.jar"))
     //implementation(files("libmpv\\app-javadoc.jar"))
+
+    // Formatting rules for detekt
+    detektPlugins(libs.detekt.formatting)
 }
 
 tasks {

@@ -36,13 +36,13 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.jellyfin.mobile.R
-import org.jellyfin.mobile.player.cast.CastPlayerProvider
-import org.jellyfin.mobile.player.cast.ICastPlayerProvider
 import org.jellyfin.mobile.app.ApiClientController
 import org.jellyfin.mobile.player.audio.car.LibraryBrowser
 import org.jellyfin.mobile.player.audio.car.LibraryPage
-import org.jellyfin.mobile.utils.extensions.mediaUri
+import org.jellyfin.mobile.player.cast.CastPlayerProvider
+import org.jellyfin.mobile.player.cast.ICastPlayerProvider
 import org.jellyfin.mobile.utils.Constants
+import org.jellyfin.mobile.utils.extensions.mediaUri
 import org.jellyfin.mobile.utils.toast
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.exception.ApiClientException
@@ -116,7 +116,7 @@ class MediaService : MediaBrowserServiceCompat() {
         notificationManager = AudioNotificationManager(
             this,
             mediaSession.sessionToken,
-            PlayerNotificationListener()
+            PlayerNotificationListener(),
         )
 
         mediaController = MediaControllerCompat(this, mediaSession)
@@ -139,10 +139,9 @@ class MediaService : MediaBrowserServiceCompat() {
 
         switchToPlayer(
             previousPlayer = null,
-            newPlayer = if (castPlayerProvider.isCastSessionAvailable) castPlayerProvider.get()!! else exoPlayer
+            newPlayer = if (castPlayerProvider.isCastSessionAvailable) castPlayerProvider.get()!! else exoPlayer,
         )
         notificationManager.showNotificationForPlayer(currentPlayer)
-
     }
 
     override fun onDestroy() {
@@ -165,7 +164,7 @@ class MediaService : MediaBrowserServiceCompat() {
     override fun onGetRoot(
         clientPackageName: String,
         clientUid: Int,
-        rootHints: Bundle?
+        rootHints: Bundle?,
     ): BrowserRoot = libraryBrowser.getRoot(rootHints)
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaItem>>) {
@@ -197,7 +196,7 @@ class MediaService : MediaBrowserServiceCompat() {
         metadataList: List<MediaMetadataCompat>,
         initialPlaybackIndex: Int = 0,
         playWhenReady: Boolean,
-        playbackStartPositionMs: Long = 0
+        playbackStartPositionMs: Long = 0,
     ) {
         currentPlaylistItems = metadataList
 
@@ -250,7 +249,7 @@ class MediaService : MediaBrowserServiceCompat() {
                     metadataList = currentPlaylistItems,
                     initialPlaybackIndex = previousPlayer.currentMediaItemIndex,
                     playWhenReady = previousPlayer.playWhenReady,
-                    playbackStartPositionMs = previousPlayer.currentPosition
+                    playbackStartPositionMs = previousPlayer.currentPosition,
                 )
             }
         }
@@ -262,10 +261,11 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     private fun setPlaybackError() {
-        mediaSession.setPlaybackState(PlaybackStateCompat.Builder().apply {
-            setState(PlaybackStateCompat.STATE_ERROR, 0, 1f)
-            setErrorMessage(PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED, getString(R.string.media_service_item_not_found))
-        }.build())
+        val errorState = PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_ERROR, 0, 1f)
+            .setErrorMessage(PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED, getString(R.string.media_service_item_not_found))
+            .build()
+        mediaSession.setPlaybackState(errorState)
     }
 
     @Suppress("unused")
@@ -375,7 +375,8 @@ class MediaService : MediaBrowserServiceCompat() {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when (playbackState) {
                 Player.STATE_BUFFERING,
-                Player.STATE_READY -> {
+                Player.STATE_READY,
+                -> {
                     notificationManager.showNotificationForPlayer(currentPlayer)
                     if (playbackState == Player.STATE_READY) {
                         // TODO: When playing/paused save the current media item in persistent storage

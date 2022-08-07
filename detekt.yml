@@ -20,6 +20,21 @@ exceptions:
   SwallowedException:
     active: false
 
+formatting:
+  MaximumLineLength:
+    # Already handled by detekt itself
+    active: false
+  NoWildcardImports:
+    # Already handled by detekt itself
+    active: false
+  PackageName:
+    # Already handled by detekt itself
+    active: false
+  TrailingComma:
+    active: true
+    allowTrailingComma: true
+    allowTrailingCommaOnCallSite: true
+
 naming:
   PackageNaming:
     # Package names must be lowercase letters

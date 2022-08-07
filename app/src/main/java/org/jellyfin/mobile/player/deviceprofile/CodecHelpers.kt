@@ -116,9 +116,11 @@ object CodecHelpers {
         CodecProfileLevel.VP9Profile0 -> "Profile 0"
         CodecProfileLevel.VP9Profile1 -> "Profile 1"
         CodecProfileLevel.VP9Profile2,
-        CodecProfileLevel.VP9Profile2HDR -> "Profile 2"
+        CodecProfileLevel.VP9Profile2HDR,
+        -> "Profile 2"
         CodecProfileLevel.VP9Profile3,
-        CodecProfileLevel.VP9Profile3HDR -> "Profile 3"
+        CodecProfileLevel.VP9Profile3HDR,
+        -> "Profile 3"
         else -> null
     }
 
@@ -167,7 +169,6 @@ object CodecHelpers {
         CodecProfileLevel.MPEG4Level0b, CodecProfileLevel.MPEG4Level3b, CodecProfileLevel.MPEG4Level4a -> null
         else -> null
     }
-
 
     private fun getAVCLevel(level: Int): String? = when (level) {
         CodecProfileLevel.AVCLevel1 -> "1"
